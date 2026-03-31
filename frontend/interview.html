@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI mock interview in progress — answer questions and get instant feedback.">
+  <title>Interview Room — NextHire AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#g1)" stroke-width="2.5"/><path d="M10 16l4 4 8-8" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6C63FF"/><stop offset="1" stop-color="#00D9FF"/></linearGradient></defs></svg>
+        <span>NextHire AI</span>
+      </a>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div class="timer" id="sessionTimer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="timerDisplay">00:00</span>
+        </div>
+        <button class="btn btn-danger btn-sm" id="endInterviewBtn" onclick="confirmEndInterview()">End Interview</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-wrapper">
+    <div class="container">
+      <!-- Progress Bar -->
+      <div class="glass-card" style="padding:16px 20px; margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span class="question-number" id="questionLabel">Question 1 of 10</span>
+          <span style="font-size:0.85rem; color:var(--text-muted);" id="roleLabel">ML Engineer • Medium</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressBar" style="width:10%"></div>
+        </div>
+      </div>
+
+      <!-- Interview Layout -->
+      <div class="interview-layout">
+        <!-- Question Panel -->
+        <div class="question-panel">
+          <div class="glass-card" style="min-height:250px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; color:var(--secondary); font-size:0.85rem; font-weight:600;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              QUESTION
+            </div>
+            <div class="question-text" id="questionText">
+              Loading question...
+            </div>
+            <div style="margin-top:20px; display:flex; gap:8px; flex-wrap:wrap;" id="questionTags"></div>
+          </div>
+
+          <!-- Interview Info Sidebar (visible on mobile below question) -->
+          <div class="glass-card interview-sidebar" id="interviewInfo">
+            <h4 style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">Interview Details</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.9rem;">
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Role</span><span id="infoRole" style="font-weight:600;">-</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Difficulty</span><span id="infoDifficulty" style="font-weight:600;">-</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Progress</span><span id="infoProgress" style="font-weight:600;">-</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-secondary);">Answered</span><span id="infoAnswered" style="font-weight:600;">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Answer Panel -->
+        <div class="answer-panel">
+          <div class="glass-card" style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; color:var(--primary-light); font-size:0.85rem; font-weight:600;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              YOUR ANSWER
+            </div>
+            <textarea class="form-textarea" id="answerInput" placeholder="Type your answer here... Be detailed and specific." style="min-height:200px;" oninput="updateCharCount()"></textarea>
+            <div class="char-count" id="charCount">0 characters</div>
+          </div>
+
+          <!-- Actions -->
+          <div class="interview-actions">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              Previous
+            </button>
+            <button class="btn btn-secondary" id="skipBtn" onclick="skipQuestion()">
+              Skip
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            </button>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" style="flex:1;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              Submit Answer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- End Interview Modal -->
+  <div class="modal-overlay" id="endModal">
+    <div class="glass-card modal">
+      <h3>End Interview?</h3>
+      <p>Are you sure you want to end this interview? Your answers so far will be saved and scored.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('endModal')">Continue Interview</button>
+        <button class="btn btn-danger" onclick="endInterview()">End & View Results</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="js/app.js"></script>
+  <script src="js/interview.js"></script>
+</body>
+</html>
