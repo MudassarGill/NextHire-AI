@@ -1,104 +1,168 @@
-// ========== Dashboard Logic ==========
+// ========== Dashboard — Loads Real Results from API ==========
 
-function initDashboard() {
-  const resultStr = sessionStorage.getItem('nexthire_last_result');
-  if (!resultStr) {
-    showToast('No results found. Start an interview first.', 'error');
-    setTimeout(() => window.location.href = 'select-role.html', 1500);
+async function initDashboard() {
+  const sessionId = sessionStorage.getItem('nexthire_session_id');
+
+  if (!sessionId) {
+    showToast('No interview session found. Please complete an interview first.', 'error');
+    setTimeout(() => window.location.href = 'select-role.html', 2000);
     return;
   }
 
-  const result = JSON.parse(resultStr);
-  const results = result.results;
-  const totalScore = result.totalScore;
+  // Show loading overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'loading-overlay';
+  overlay.id = 'dashLoader';
+  overlay.innerHTML = `
+    <div class="spinner" style="width:52px;height:52px;border-width:4px;"></div>
+    <p style="color:var(--text-secondary);margin-top:20px;font-size:1rem;">Loading your results...</p>
+  `;
+  document.body.appendChild(overlay);
 
-  // Subtitle
-  document.getElementById('dashboardSubtitle').textContent = 
-    `${result.role.name} • ${result.difficulty.charAt(0).toUpperCase() + result.difficulty.slice(1)} • ${formatDuration(result.duration)}`;
+  try {
+    const token = localStorage.getItem('nexthire_token');
+    const response = await fetch(`/api/interview/feedback/${sessionId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-  // Score circle animation
+    document.getElementById('dashLoader')?.remove();
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || 'Failed to load results');
+    }
+
+    const data = await response.json();
+    renderDashboard(data);
+
+  } catch (err) {
+    document.getElementById('dashLoader')?.remove();
+    showToast('Failed to load results: ' + (err.message || 'Unknown error'), 'error');
+    setTimeout(() => window.location.href = 'select-role.html', 3000);
+  }
+}
+
+function renderDashboard(data) {
+  const session   = data.session;
+  const questions = data.questions;
+  const totalScore = session.total_score;
+
+  // --- Subtitle ---
+  const diff = session.difficulty.charAt(0).toUpperCase() + session.difficulty.slice(1);
+  let duration = '';
+  if (session.started_at && session.completed_at) {
+    const ms = new Date(session.completed_at) - new Date(session.started_at);
+    duration = ' • ' + formatDuration(Math.floor(ms / 1000));
+  }
+  document.getElementById('dashboardSubtitle').textContent =
+    `${session.role} • ${diff} • ${session.question_count} Questions${duration}`;
+
+  // --- Score circle ---
   setTimeout(() => {
     const circle = document.getElementById('scoreCircle');
-    const circumference = 2 * Math.PI * 80; // r=80
-    const offset = circumference - (totalScore / 100) * circumference;
-    circle.style.strokeDashoffset = offset;
-
-    // Color based on score
+    const circumference = 2 * Math.PI * 80;
+    circle.style.strokeDashoffset = circumference - (totalScore / 100) * circumference;
     if (totalScore >= 70) circle.style.stroke = '#10B981';
     else if (totalScore >= 40) circle.style.stroke = '#F59E0B';
     else circle.style.stroke = '#EF4444';
   }, 300);
 
-  // Score number animation
   animateNumber('totalScore', 0, totalScore, 1500);
 
-  // Grade
-  const grade = totalScore >= 90 ? 'Excellent! 🌟' : totalScore >= 70 ? 'Great Job! 👏' : totalScore >= 50 ? 'Good Effort 👍' : totalScore >= 30 ? 'Keep Practicing 💪' : 'Needs Improvement 📚';
+  // --- Grade ---
+  const grade = totalScore >= 90 ? 'Excellent! 🌟'
+    : totalScore >= 70 ? 'Great Job! 👏'
+    : totalScore >= 50 ? 'Good Effort 👍'
+    : totalScore >= 30 ? 'Keep Practicing 💪'
+    : 'Needs Improvement 📚';
   document.getElementById('scoreGrade').textContent = grade;
 
-  // Metrics
-  const avgCorrectness = Math.round(results.reduce((s, r) => s + r.correctness, 0) / results.length);
-  const avgDepth = Math.round(results.reduce((s, r) => s + r.depth, 0) / results.length);
-  const avgClarity = Math.round(results.reduce((s, r) => s + r.clarity, 0) / results.length);
-
+  // --- Performance Bars ---
+  const ac = Math.round(data.avg_correctness);
+  const ad = Math.round(data.avg_depth);
+  const acl = Math.round(data.avg_clarity);
   setTimeout(() => {
-    document.getElementById('correctnessBar').style.width = avgCorrectness + '%';
-    document.getElementById('correctnessVal').textContent = avgCorrectness + '%';
-    document.getElementById('depthBar').style.width = avgDepth + '%';
-    document.getElementById('depthVal').textContent = avgDepth + '%';
-    document.getElementById('clarityBar').style.width = avgClarity + '%';
-    document.getElementById('clarityVal').textContent = avgClarity + '%';
+    document.getElementById('correctnessBar').style.width = ac + '%';
+    document.getElementById('correctnessVal').textContent  = ac + '%';
+    document.getElementById('depthBar').style.width        = ad + '%';
+    document.getElementById('depthVal').textContent        = ad + '%';
+    document.getElementById('clarityBar').style.width      = acl + '%';
+    document.getElementById('clarityVal').textContent      = acl + '%';
   }, 500);
 
-  // Summary cards
-  const answered = results.filter(r => r.answer !== '(Skipped)').length;
-  const skipped = results.length - answered;
-  const avgScoreVal = (results.reduce((s, r) => s + r.score, 0) / results.length).toFixed(1);
-  
-  document.getElementById('answeredCount').textContent = answered;
-  document.getElementById('skippedCount').textContent = skipped;
-  document.getElementById('avgScore').textContent = avgScoreVal + '/10';
+  // --- Summary cards ---
+  document.getElementById('answeredCount').textContent = data.answered_count;
+  document.getElementById('skippedCount').textContent  = data.skipped_count;
+  const answeredQs = questions.filter(q => q.user_answer && q.user_answer !== '(Skipped)');
+  const avgScore = answeredQs.length
+    ? (answeredQs.reduce((s, q) => s + q.score, 0) / answeredQs.length).toFixed(1)
+    : '0.0';
+  document.getElementById('avgScore').textContent = avgScore + '/10';
 
-  // Strengths & Weaknesses
+  // --- Strengths & Weaknesses ---
   const swDiv = document.getElementById('strengthsWeaknesses');
   const metrics = [
-    { name: 'Correctness', val: avgCorrectness },
-    { name: 'Depth', val: avgDepth },
-    { name: 'Clarity', val: avgClarity }
+    { name: 'Correctness', val: ac },
+    { name: 'Depth', val: ad },
+    { name: 'Clarity', val: acl }
   ].sort((a, b) => b.val - a.val);
-
   swDiv.innerHTML = `
-    <div style="margin-bottom:12px;">
-      <span style="color:var(--success); font-weight:600;">Strongest:</span> ${metrics[0].name} (${metrics[0].val}%)
+    <div style="margin-bottom:10px;">
+      <span style="color:var(--success);font-weight:600;">Strongest:</span>
+      ${metrics[0].name} <span style="color:var(--text-muted);">(${metrics[0].val}%)</span>
     </div>
     <div>
-      <span style="color:var(--warning); font-weight:600;">Needs Work:</span> ${metrics[2].name} (${metrics[2].val}%)
+      <span style="color:var(--warning);font-weight:600;">Needs Work:</span>
+      ${metrics[2].name} <span style="color:var(--text-muted);">(${metrics[2].val}%)</span>
     </div>
   `;
 
-  // Q&A Accordion
+  // --- Q&A Accordion ---
   const accordion = document.getElementById('qaAccordion');
-  accordion.innerHTML = results.map((r, i) => {
-    const scoreClass = r.score >= 7 ? 'high' : r.score >= 4 ? 'mid' : 'low';
+  accordion.innerHTML = questions.map((q, i) => {
+    const skipped    = !q.user_answer || q.user_answer === '(Skipped)';
+    const scoreClass = q.score >= 7 ? 'high' : q.score >= 4 ? 'mid' : 'low';
     return `
       <div class="glass-card qa-item" id="qa-${i}">
         <div class="qa-header" onclick="toggleQA(${i})">
-          <div style="flex:1; min-width:0;">
-            <div style="font-weight:600; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Q${i + 1}: ${r.question}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              Q${i + 1}: ${escapeHtml(q.question_text)}
+            </div>
           </div>
-          <span class="qa-score ${scoreClass}">${r.score}/10</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; transition:transform 0.3s;"><path d="M6 9l6 6 6-6"/></svg>
+          <span class="qa-score ${skipped ? 'low' : scoreClass}">
+            ${skipped ? 'Skipped' : q.score + '/10'}
+          </span>
+          <svg class="qa-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;transition:transform 0.3s;">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
         </div>
         <div class="qa-body">
           <div style="margin-top:16px;">
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">YOUR ANSWER</div>
-            <div style="font-size:0.9rem; color:var(--text-secondary); padding:12px; background:var(--surface); border-radius:var(--radius-sm); margin-bottom:16px; white-space:pre-wrap;">${r.answer}</div>
-            
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">💬 AI FEEDBACK</div>
-            <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">${r.feedback}</div>
-            
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px; font-weight:600;">🎯 IMPROVEMENT TIPS</div>
-            <div style="font-size:0.9rem; color:var(--secondary);">${r.improvement}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.06em;margin-bottom:6px;">YOUR ANSWER</div>
+            <div style="font-size:0.9rem;color:var(--text-secondary);padding:12px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:16px;white-space:pre-wrap;line-height:1.6;">
+              ${escapeHtml(q.user_answer || '(Not answered)')}
+            </div>
+            ${!skipped ? `
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+                <div style="text-align:center;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border-top:2px solid var(--primary);">
+                  <div style="font-size:1.1rem;font-weight:700;color:var(--primary);">${q.correctness || 0}%</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Correctness</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border-top:2px solid var(--secondary);">
+                  <div style="font-size:1.1rem;font-weight:700;color:var(--secondary);">${q.depth || 0}%</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Depth</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border-top:2px solid var(--accent);">
+                  <div style="font-size:1.1rem;font-weight:700;color:var(--accent);">${q.clarity || 0}%</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Clarity</div>
+                </div>
+              </div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.06em;margin-bottom:6px;">AI FEEDBACK</div>
+              <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.6;">${escapeHtml(q.feedback || 'No feedback available.')}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.06em;margin-bottom:6px;">IMPROVEMENT TIPS</div>
+              <div style="font-size:0.9rem;color:var(--secondary);line-height:1.6;">${escapeHtml(q.improvement || 'Keep practicing.')}</div>
+            ` : `<div style="color:var(--text-muted);font-size:0.9rem;">This question was skipped — consider attempting it in your next session.</div>`}
           </div>
         </div>
       </div>
@@ -107,29 +171,38 @@ function initDashboard() {
 }
 
 function toggleQA(index) {
-  const item = document.getElementById(`qa-${index}`);
+  const item  = document.getElementById(`qa-${index}`);
+  const arrow = item.querySelector('.qa-arrow');
   item.classList.toggle('open');
+  if (arrow) arrow.style.transform = item.classList.contains('open') ? 'rotate(180deg)' : '';
 }
 
-function animateNumber(elementId, start, end, duration) {
-  const el = document.getElementById(elementId);
-  const range = end - start;
+function animateNumber(id, start, end, duration) {
+  const el = document.getElementById(id);
   const startTime = performance.now();
-
-  function update(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
+  const range = end - start;
+  function update(now) {
+    const p = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
     el.textContent = Math.round(start + range * eased);
-    if (progress < 1) requestAnimationFrame(update);
+    if (p < 1) requestAnimationFrame(update);
   }
   requestAnimationFrame(update);
 }
 
-function formatDuration(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}m ${secs}s`;
+function formatDuration(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 document.addEventListener('DOMContentLoaded', initDashboard);
