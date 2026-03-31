@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn about NextHire AI — the AI-powered mock interview platform.">
+  <title>About — NextHire AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#g1)" stroke-width="2.5"/><path d="M10 16l4 4 8-8" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6C63FF"/><stop offset="1" stop-color="#00D9FF"/></linearGradient></defs></svg>
+        <span>NextHire AI</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="select-role.html">Start Interview</a></li>
+        <li><a href="history.html">History</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+      </ul>
+      <div class="nav-user" id="navUser"></div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main class="page-wrapper">
+    <div class="container" style="max-width:800px;">
+      <div class="page-header" style="text-align:center;">
+        <h1>About <span class="gradient-text">NextHire AI</span></h1>
+        <p>Empowering candidates to ace their dream job interviews with AI</p>
+      </div>
+
+      <div class="glass-card animate-fade-in" style="margin-bottom:24px;">
+        <h2 style="font-size:1.3rem; margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          Our Mission
+        </h2>
+        <p style="color:var(--text-secondary); line-height:1.8;">NextHire AI simulates a real interview environment using cutting-edge AI technology. Our platform helps job seekers practice technical and behavioral interviews with instant, personalized feedback — giving them the confidence to succeed in real interviews.</p>
+      </div>
+
+      <div class="glass-card animate-fade-in delay-1" style="margin-bottom:24px;">
+        <h2 style="font-size:1.3rem; margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Key Features
+        </h2>
+        <ul style="color:var(--text-secondary); line-height:2; padding-left:20px;">
+          <li>Dynamic AI-generated questions for 10+ job roles</li>
+          <li>Easy, Medium, and Hard difficulty levels</li>
+          <li>Real-time answer evaluation with detailed feedback</li>
+          <li>Score dashboard with performance breakdown</li>
+          <li>Interview history tracking and progress analysis</li>
+          <li>Beautiful, responsive design for all devices</li>
+        </ul>
+      </div>
+
+      <div class="glass-card animate-fade-in delay-2" style="margin-bottom:24px;">
+        <h2 style="font-size:1.3rem; margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+          Tech Stack
+        </h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-top:16px;">
+          <div style="padding:16px; background:var(--surface); border-radius:var(--radius-sm); border-left:3px solid var(--primary);">
+            <div style="font-weight:700; margin-bottom:4px;">Frontend</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">HTML, CSS, JavaScript</div>
+          </div>
+          <div style="padding:16px; background:var(--surface); border-radius:var(--radius-sm); border-left:3px solid var(--secondary);">
+            <div style="font-weight:700; margin-bottom:4px;">Backend</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">Python, FastAPI</div>
+          </div>
+          <div style="padding:16px; background:var(--surface); border-radius:var(--radius-sm); border-left:3px solid var(--accent);">
+            <div style="font-weight:700; margin-bottom:4px;">AI / LLM</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">Groq API (LLaMA3)</div>
+          </div>
+          <div style="padding:16px; background:var(--surface); border-radius:var(--radius-sm); border-left:3px solid var(--success);">
+            <div style="font-weight:700; margin-bottom:4px;">Database</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">SQLite + SQLAlchemy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card animate-fade-in delay-3" style="text-align:center;">
+        <h2 style="font-size:1.3rem; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Developer
+        </h2>
+        <div class="nav-avatar" style="width:64px; height:64px; font-size:1.5rem; margin:0 auto 12px;">MH</div>
+        <div style="font-weight:700; font-size:1.1rem;">Mudassar Hussain</div>
+        <div style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:16px;">AI/ML Engineer</div>
+        <a href="https://github.com" target="_blank" class="btn btn-secondary btn-sm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub Profile
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-text">&copy; 2026 NextHire AI</div>
+        <div class="footer-links"><a href="index.html">Home</a><a href="select-role.html">Start Interview</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>

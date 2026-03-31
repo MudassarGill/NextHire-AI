@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View your interview performance, scores, and detailed AI feedback.">
+  <title>Score Dashboard — NextHire AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#g1)" stroke-width="2.5"/><path d="M10 16l4 4 8-8" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6C63FF"/><stop offset="1" stop-color="#00D9FF"/></linearGradient></defs></svg>
+        <span>NextHire AI</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="select-role.html">Start Interview</a></li>
+        <li><a href="history.html">History</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+      <div class="nav-user" id="navUser"></div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main class="page-wrapper">
+    <div class="container">
+      <div class="page-header">
+        <h1>Interview <span class="gradient-text">Results</span></h1>
+        <p id="dashboardSubtitle">Your performance summary</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Left: Score Overview -->
+        <div>
+          <div class="glass-card" style="text-align:center; margin-bottom:20px;">
+            <h3 style="font-size:0.9rem; color:var(--text-muted); margin-bottom:16px;">Overall Score</h3>
+            <div class="score-circle">
+              <svg viewBox="0 0 180 180">
+                <circle class="bg" cx="90" cy="90" r="80"/>
+                <circle class="fg" cx="90" cy="90" r="80" id="scoreCircle"/>
+              </svg>
+              <div class="score-value">
+                <div class="number gradient-text" id="totalScore">0</div>
+                <div class="label">out of 100</div>
+              </div>
+            </div>
+            <div id="scoreGrade" style="font-size:1.1rem; font-weight:700; margin-top:8px;"></div>
+          </div>
+
+          <!-- Metrics -->
+          <div class="glass-card">
+            <h4 style="font-size:0.9rem; color:var(--text-muted); margin-bottom:16px;">Performance Breakdown</h4>
+            <div class="metric-bar">
+              <div class="metric-header"><span>Correctness</span><span id="correctnessVal">0%</span></div>
+              <div class="metric-track"><div class="metric-fill purple" id="correctnessBar" style="width:0%"></div></div>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-header"><span>Depth</span><span id="depthVal">0%</span></div>
+              <div class="metric-track"><div class="metric-fill cyan" id="depthBar" style="width:0%"></div></div>
+            </div>
+            <div class="metric-bar">
+              <div class="metric-header"><span>Clarity</span><span id="clarityVal">0%</span></div>
+              <div class="metric-track"><div class="metric-fill pink" id="clarityBar" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Per-Question Results -->
+        <div>
+          <!-- Summary Cards -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:20px;">
+            <div class="glass-card" style="text-align:center; padding:16px;">
+              <div style="font-size:1.6rem; font-weight:800; color:var(--success);" id="answeredCount">0</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Answered</div>
+            </div>
+            <div class="glass-card" style="text-align:center; padding:16px;">
+              <div style="font-size:1.6rem; font-weight:800; color:var(--warning);" id="skippedCount">0</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Skipped</div>
+            </div>
+            <div class="glass-card" style="text-align:center; padding:16px;">
+              <div style="font-size:1.6rem; font-weight:800; color:var(--secondary);" id="avgScore">0</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Avg Score</div>
+            </div>
+          </div>
+
+          <!-- Strengths & Weaknesses -->
+          <div class="glass-card" style="margin-bottom:20px;">
+            <h4 style="margin-bottom:12px;">💪 Strengths & Areas to Improve</h4>
+            <div id="strengthsWeaknesses" style="font-size:0.9rem; color:var(--text-secondary);"></div>
+          </div>
+
+          <!-- Q&A Accordion -->
+          <h3 style="margin-bottom:16px; font-size:1.1rem;">Question-by-Question Review</h3>
+          <div class="qa-accordion" id="qaAccordion"></div>
+
+          <!-- Actions -->
+          <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap;">
+            <a href="select-role.html" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              New Interview
+            </a>
+            <a href="history.html" class="btn btn-secondary">View History</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-text">© 2026 NextHire AI</div>
+        <div class="footer-links"><a href="about.html">About</a><a href="index.html">Home</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
