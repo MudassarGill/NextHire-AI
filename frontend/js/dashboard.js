@@ -153,30 +153,32 @@ function renderDashboard(data) {
     const scoreClass = q.score >= 7 ? 'high' : q.score >= 4 ? 'mid' : 'low';
     return `
       <div class="glass-card qa-item" id="qa-${i}">
-        <div class="qa-header" onclick="toggleQA(${i})">
+        <div class="qa-header" onclick="toggleQA(${i})" style="align-items: flex-start;">
           <div style="flex:1;min-width:0;">
-            <div style="font-weight:600;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            <div style="font-weight:600;font-size:0.95rem;line-height:1.5;word-break:break-word;padding-right:12px;">
               Q${i + 1}: ${escapeHtml(q.question_text)}
             </div>
           </div>
-          <span class="qa-score ${skipped ? 'low' : scoreClass}">
-            ${skipped ? 'Skipped' : q.score + '/10'}
-          </span>
-          <svg class="qa-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;transition:transform 0.3s;">
-            <path d="M6 9l6 6 6-6"/>
-          </svg>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:2px;">
+            <span class="qa-score ${skipped ? 'low' : scoreClass}">
+              ${skipped ? 'Skipped' : q.score + '/10'}
+            </span>
+            <svg class="qa-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;transition:transform 0.3s;">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </div>
         </div>
         <div class="qa-body">
           <div style="margin-top:16px;">
             <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.06em;margin-bottom:6px;">YOUR ANSWER</div>
-            <div style="font-size:0.9rem;color:var(--text-secondary);padding:12px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:16px;white-space:pre-wrap;line-height:1.6;">
+            <div style="font-size:0.9rem;color:var(--text-secondary);padding:12px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:16px;white-space:pre-wrap;word-break:break-word;line-height:1.6;">
               ${escapeHtml(q.user_answer || '(Not answered)')}
             </div>
             ${!skipped ? `
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(80px, 1fr));gap:10px;margin-bottom:16px;">
                 <div style="text-align:center;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border-top:2px solid var(--primary);">
                   <div style="font-size:1.1rem;font-weight:700;color:var(--primary);">${q.correctness || 0}%</div>
-                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Correctness</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;word-break:break-word;">Correctness</div>
                 </div>
                 <div style="text-align:center;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border-top:2px solid var(--secondary);">
                   <div style="font-size:1.1rem;font-weight:700;color:var(--secondary);">${q.depth || 0}%</div>
@@ -184,14 +186,14 @@ function renderDashboard(data) {
                 </div>
                 <div style="text-align:center;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border-top:2px solid var(--accent);">
                   <div style="font-size:1.1rem;font-weight:700;color:var(--accent);">${q.clarity || 0}%</div>
-                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Clarity</div>
+                  <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;word-break:break-word;">Clarity</div>
                 </div>
               </div>
               <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.06em;margin-bottom:6px;">AI FEEDBACK</div>
-              <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.6;">${escapeHtml(q.feedback || 'No feedback available.')}</div>
+              <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:14px;line-height:1.6;word-break:break-word;">${escapeHtml(q.feedback || 'No feedback available.')}</div>
               <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.06em;margin-bottom:6px;">IMPROVEMENT TIPS</div>
-              <div style="font-size:0.9rem;color:var(--secondary);line-height:1.6;">${escapeHtml(q.improvement || 'Keep practicing.')}</div>
-            ` : `<div style="color:var(--text-muted);font-size:0.9rem;">This question was skipped — consider attempting it in your next session.</div>`}
+              <div style="font-size:0.9rem;color:var(--secondary);line-height:1.6;word-break:break-word;">${escapeHtml(q.improvement || 'Keep practicing.')}</div>
+            ` : `<div style="color:var(--text-muted);font-size:0.9rem;word-break:break-word;">This question was skipped — consider attempting it in your next session.</div>`}
           </div>
         </div>
       </div>
