@@ -12,22 +12,22 @@
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
-  --bg-primary: #0A0A14;
-  --bg-secondary: #0F0F1A;
-  --bg-tertiary: #1A1A2E;
-  --surface: rgba(255,255,255,0.04);
-  --surface-hover: rgba(255,255,255,0.08);
-  --surface-active: rgba(255,255,255,0.12);
-  --glass: rgba(255,255,255,0.06);
-  --glass-border: rgba(255,255,255,0.1);
+  --bg-primary: #080C18;
+  --bg-secondary: #0D1527;
+  --bg-tertiary: #162040;
+  --surface: rgba(255,255,255,0.05);
+  --surface-hover: rgba(108,99,255,0.1);
+  --surface-active: rgba(108,99,255,0.15);
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(108,99,255,0.15);
   --text-primary: #F1F5F9;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
-  --border: rgba(255,255,255,0.08);
-  --shadow: 0 8px 32px rgba(0,0,0,0.4);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
-  --glow-primary: 0 0 20px rgba(108,99,255,0.3);
-  --glow-secondary: 0 0 20px rgba(0,217,255,0.3);
+  --border: rgba(108,99,255,0.12);
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
+  --glow-primary: 0 0 24px rgba(108,99,255,0.35);
+  --glow-secondary: 0 0 24px rgba(0,217,255,0.3);
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -45,7 +45,8 @@ html {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary), var(--bg-tertiary));
+  background: linear-gradient(135deg, #080C18 0%, #0D1527 35%, #101d3a 65%, #162040 100%);
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
@@ -164,10 +165,10 @@ img { max-width: 100%; height: auto; }
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(10,10,20,0.85);
+  background: rgba(8,12,24,0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(108,99,255,0.18);
   padding: 0 20px;
   height: 70px;
 }
