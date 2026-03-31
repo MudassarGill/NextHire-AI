@@ -81,6 +81,11 @@ class SubmitAnswerRequest(BaseModel):
     question_id: int
     answer: str
 
+class ModelAnswerRequest(BaseModel):
+    question: str
+    role: str
+    difficulty: str = "medium"
+
 class QuestionResponse(BaseModel):
     id: int
     question_number: int

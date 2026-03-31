@@ -2,7 +2,7 @@ import json
 import re
 from groq import Groq
 from config import GROQ_API_KEY, GROQ_MODEL
-from prompts.templates import GENERATE_QUESTIONS_PROMPT, EVALUATE_ANSWER_PROMPT
+from prompts.templates import GENERATE_QUESTIONS_PROMPT, EVALUATE_ANSWER_PROMPT, GENERATE_MODEL_ANSWER_PROMPT
 
 
 client = Groq(api_key=GROQ_API_KEY)
@@ -84,3 +84,28 @@ def evaluate_answer(role: str, difficulty: str, question: str, answer: str) -> d
             "feedback": "We could not evaluate your answer at this time. Please try again.",
             "improvement": "Ensure your answer is detailed and relevant to the question."
         }
+
+
+def generate_model_answer(role: str, difficulty: str, question: str) -> str:
+    """Generate a model/ideal answer for any interview question using Groq LLM."""
+    prompt = GENERATE_MODEL_ANSWER_PROMPT.format(
+        role=role, difficulty=difficulty, question=question
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[
+                {"role": "system", "content": "You are a senior technical expert. Provide clear, comprehensive model answers to interview questions."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.4,
+            max_tokens=1500,
+        )
+
+        content = response.choices[0].message.content.strip()
+        return content
+
+    except Exception as e:
+        print(f"Error generating model answer: {e}")
+        return f"Sorry, I couldn't generate a model answer for this question right now. Please try again later."

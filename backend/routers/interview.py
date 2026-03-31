@@ -8,7 +8,7 @@ from models import (
     QuestionResponse, SessionResponse, DashboardResponse
 )
 from routers.auth import get_current_user
-from services.llm_service import generate_questions, evaluate_answer
+from services.llm_service import generate_questions, evaluate_answer, generate_model_answer
 
 router = APIRouter(prefix="/api/interview", tags=["Interview"])
 

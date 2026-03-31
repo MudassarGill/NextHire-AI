@@ -31,3 +31,19 @@ Also provide:
 
 Return ONLY valid JSON in this exact format, no other text:
 {{"score": 7.5, "correctness": 80, "depth": 70, "clarity": 85, "feedback": "Your feedback here.", "improvement": "Your suggestions here."}}"""
+
+
+GENERATE_MODEL_ANSWER_PROMPT = """You are a senior {role} expert. Provide a comprehensive, well-structured model answer for this interview question.
+
+Difficulty Level: {difficulty}
+Question: {question}
+
+Instructions:
+- Give a clear, detailed answer that would score 9-10/10 in an interview
+- Structure your answer with key points
+- Include relevant examples or scenarios where appropriate
+- For "{difficulty}" difficulty, adjust the depth accordingly
+- Keep the answer concise but thorough (3-5 paragraphs)
+- Do NOT use markdown formatting, just plain text with line breaks
+
+Provide the model answer directly, no preamble or meta-commentary."""
