@@ -1,4 +1,4 @@
-// ========== Dashboard — Loads Real Results from API ==========
+// ========== Dashboard — Loads Results from API or Local Storage ==========
 
 async function initDashboard() {
   const sessionId = sessionStorage.getItem('nexthire_session_id');
@@ -19,6 +19,26 @@ async function initDashboard() {
   `;
   document.body.appendChild(overlay);
 
+  // Check if this is a local mode session
+  const isLocal = String(sessionId).startsWith('local-');
+
+  if (isLocal) {
+    // Load from sessionStorage (local mode)
+    const localResults = sessionStorage.getItem('nexthire_local_results');
+    document.getElementById('dashLoader')?.remove();
+
+    if (localResults) {
+      const data = JSON.parse(localResults);
+      renderDashboard(data);
+      showToast('Results loaded (demo mode)', 'info');
+    } else {
+      showToast('No results available for this session.', 'error');
+      setTimeout(() => window.location.href = 'select-role.html', 2000);
+    }
+    return;
+  }
+
+  // API mode — fetch from server
   try {
     const token = localStorage.getItem('nexthire_token');
     const response = await fetch(`/api/interview/feedback/${sessionId}`, {
@@ -37,8 +57,17 @@ async function initDashboard() {
 
   } catch (err) {
     document.getElementById('dashLoader')?.remove();
-    showToast('Failed to load results: ' + (err.message || 'Unknown error'), 'error');
-    setTimeout(() => window.location.href = 'select-role.html', 3000);
+
+    // Fallback to local results if available
+    const localResults = sessionStorage.getItem('nexthire_local_results');
+    if (localResults) {
+      const data = JSON.parse(localResults);
+      renderDashboard(data);
+      showToast('Loaded cached results (server unavailable)', 'info');
+    } else {
+      showToast('Failed to load results: ' + (err.message || 'Unknown error'), 'error');
+      setTimeout(() => window.location.href = 'select-role.html', 3000);
+    }
   }
 }
 
@@ -63,8 +92,8 @@ function renderDashboard(data) {
     const circumference = 2 * Math.PI * 80;
     circle.style.strokeDashoffset = circumference - (totalScore / 100) * circumference;
     if (totalScore >= 70) circle.style.stroke = '#10B981';
-    else if (totalScore >= 40) circle.style.stroke = '#F59E0B';
-    else circle.style.stroke = '#EF4444';
+    else if (totalScore >= 40) circle.style.stroke = '#FBBF24';
+    else circle.style.stroke = '#F87171';
   }, 300);
 
   animateNumber('totalScore', 0, totalScore, 1500);

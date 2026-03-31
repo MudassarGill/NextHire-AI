@@ -4,7 +4,7 @@ from datetime import datetime
 from database import get_db
 from models import (
     UserDB, InterviewSessionDB, QuestionDB,
-    StartInterviewRequest, SubmitAnswerRequest,
+    StartInterviewRequest, SubmitAnswerRequest, ModelAnswerRequest,
     QuestionResponse, SessionResponse, DashboardResponse
 )
 from routers.auth import get_current_user
@@ -276,3 +276,14 @@ def get_history(
         }
         for s in sessions
     ]
+
+
+@router.post("/model-answer")
+def get_model_answer(data: ModelAnswerRequest):
+    """Generate a model/ideal answer for an interview question using AI."""
+    answer = generate_model_answer(
+        role=data.role,
+        difficulty=data.difficulty,
+        question=data.question
+    )
+    return {"model_answer": answer}
