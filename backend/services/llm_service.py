@@ -1,11 +1,39 @@
 import json
 import re
+import os
 from groq import Groq
 from config import GROQ_API_KEY, GROQ_MODEL
 from prompts.templates import GENERATE_QUESTIONS_PROMPT, EVALUATE_ANSWER_PROMPT, GENERATE_MODEL_ANSWER_PROMPT
 
+# --- MLflow: Optional Integration ---
+MLFLOW_ENABLED = os.getenv("MLFLOW_ENABLED", "false").lower() == "true"
+
+if MLFLOW_ENABLED:
+    try:
+        import mlflow
+        print("✅ MLflow tracking enabled")
+    except ImportError:
+        MLFLOW_ENABLED = False
+        print("⚠️ MLflow not installed, tracking disabled")
+else:
+    print("ℹ️ MLflow tracking disabled (set MLFLOW_ENABLED=true to enable)")
+
 
 client = Groq(api_key=GROQ_API_KEY)
+
+
+def _mlflow_log(run_name: str, params: dict, texts: dict):
+    """Helper to log to MLflow only if enabled."""
+    if not MLFLOW_ENABLED:
+        return
+    try:
+        with mlflow.start_run(run_name=run_name) as run:
+            for k, v in params.items():
+                mlflow.log_param(k, v)
+            for filename, content in texts.items():
+                mlflow.log_text(content, filename)
+    except Exception as e:
+        print(f"⚠️ MLflow logging failed: {e}")
 
 
 def generate_questions(role: str, difficulty: str, count: int) -> list[str]:
@@ -18,20 +46,28 @@ def generate_questions(role: str, difficulty: str, count: int) -> list[str]:
         response = client.chat.completions.create(
             model=GROQ_MODEL,
             messages=[
-                {"role": "system", "content": "You are a technical interviewer. Always respond with valid JSON only."},
+                {"role": "system", "content": "You are an expert technical interviewer."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=2000,
+            max_tokens=1500,
         )
 
         content = response.choices[0].message.content.strip()
-        # Extract JSON array from response
-        match = re.search(r'\[.*\]', content, re.DOTALL)
-        if match:
-            questions = json.loads(match.group())
-            return questions[:count]
-        return json.loads(content)[:count]
+
+        # Fix common LLM markdown wrapper issues
+        if content.startswith("```json"):
+            content = content.replace("```json", "").replace("```", "").strip()
+        elif content.startswith("```"):
+            content = content.replace("```", "").strip()
+
+        # Log to MLflow (non-blocking)
+        _mlflow_log("generate_questions", {
+            "role": role, "difficulty": difficulty, "model": GROQ_MODEL
+        }, {"prompt.txt": prompt, "response.json": content})
+
+        questions = json.loads(content)
+        return questions[:count]
 
     except Exception as e:
         print(f"Error generating questions: {e}")
@@ -57,6 +93,12 @@ def evaluate_answer(role: str, difficulty: str, question: str, answer: str) -> d
         )
 
         content = response.choices[0].message.content.strip()
+
+        # Log to MLflow (non-blocking)
+        _mlflow_log("evaluate_answer", {
+            "role": role, "difficulty": difficulty, "model": GROQ_MODEL
+        }, {"eval_prompt.txt": prompt, "eval_response.json": content})
+
         # Extract JSON object from response
         match = re.search(r'\{.*\}', content, re.DOTALL)
         if match:
@@ -104,6 +146,12 @@ def generate_model_answer(role: str, difficulty: str, question: str) -> str:
         )
 
         content = response.choices[0].message.content.strip()
+
+        # Log to MLflow (non-blocking)
+        _mlflow_log("generate_model_answer", {
+            "role": role, "difficulty": difficulty, "model": GROQ_MODEL
+        }, {"model_answer.txt": content})
+
         return content
 
     except Exception as e:

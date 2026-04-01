@@ -1,0 +1,47 @@
+name: NextHire AI — AWS EC2 Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy Repository Contents via SCP
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "."
+          target: "~/nexthire-ai"
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to project director
+            cd ~/nexthire-ai
+            
+            # Securely create the .env file from GitHub Secrets
+            echo "${{ secrets.ENV_FILE }}" > .env
+            
+            # Stop existing containers
+            sudo docker-compose down || true
+            
+            # Rebuild and start new containers
+            sudo docker-compose up -d --build
+            
+            # Clean up old unused images to save space
+            sudo docker image prune -f

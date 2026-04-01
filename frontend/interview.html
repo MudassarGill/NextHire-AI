@@ -43,6 +43,64 @@
       <div class="interview-layout">
         <!-- Question Panel -->
         <div class="question-panel">
+
+          <!-- ===== AI Avatar Interviewer Panel ===== -->
+          <div class="glass-card avatar-panel" id="avatarPanel">
+            <div class="avatar-container" id="avatarContainer">
+              <div class="avatar-ring"></div>
+              <!-- SVG-based avatar (no external file needed) -->
+              <svg class="avatar-image" id="avatarImage" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="avatarGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#8B5CF6"/>
+                    <stop offset="0.5" stop-color="#06B6D4"/>
+                    <stop offset="1" stop-color="#F472B6"/>
+                  </linearGradient>
+                  <radialGradient id="faceGlow" cx="60" cy="55" r="50" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="rgba(139,92,246,0.25)"/>
+                    <stop offset="1" stop-color="transparent"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="#1E1E28"/>
+                <circle cx="60" cy="60" r="58" fill="url(#faceGlow)"/>
+                <!-- Head silhouette -->
+                <circle cx="60" cy="45" r="22" fill="url(#avatarGrad)" opacity="0.8"/>
+                <!-- Body shoulders -->
+                <ellipse cx="60" cy="95" rx="35" ry="22" fill="url(#avatarGrad)" opacity="0.6"/>
+                <!-- AI "brain" circuit lines -->
+                <path d="M48 40 L52 35 L56 40" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                <path d="M64 40 L68 35 L72 40" stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                <circle cx="52" cy="43" r="2" fill="#22D3EE" opacity="0.9"/>
+                <circle cx="68" cy="43" r="2" fill="#22D3EE" opacity="0.9"/>
+                <path d="M54 52 Q60 56 66 52" stroke="#A78BFA" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <!-- AI node dots -->
+                <circle cx="60" cy="30" r="1.5" fill="#22D3EE" opacity="0.5"/>
+                <circle cx="45" cy="50" r="1" fill="#A78BFA" opacity="0.4"/>
+                <circle cx="75" cy="50" r="1" fill="#A78BFA" opacity="0.4"/>
+              </svg>
+            </div>
+            <div class="avatar-label">AI Interviewer</div>
+            <div class="avatar-name">NextHire AI</div>
+
+            <!-- Voice Status Indicator -->
+            <div class="voice-status" id="voiceStatus">
+              <span class="voice-status-dot"></span>
+              <span id="voiceStatusText">Ready</span>
+            </div>
+
+            <!-- Sound Wave Visualizer -->
+            <div class="sound-wave" id="soundWave">
+              <div class="sound-wave-bar"></div>
+              <div class="sound-wave-bar"></div>
+              <div class="sound-wave-bar"></div>
+              <div class="sound-wave-bar"></div>
+              <div class="sound-wave-bar"></div>
+              <div class="sound-wave-bar"></div>
+              <div class="sound-wave-bar"></div>
+            </div>
+          </div>
+
+          <!-- Question Card -->
           <div class="glass-card" style="min-height:250px;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; color:var(--secondary); font-size:0.85rem; font-weight:600;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -68,12 +126,46 @@
 
         <!-- Answer Panel -->
         <div class="answer-panel">
+
+          <!-- ===== Voice Controls Bar ===== -->
+          <div class="voice-controls-bar" id="voiceControlsBar">
+            <div class="voice-controls-left">
+              <!-- Auto Mode Toggle -->
+              <div class="auto-toggle" id="autoToggle" onclick="toggleAutoMode()">
+                <div class="toggle-switch" id="autoToggleSwitch"></div>
+                <span class="auto-toggle-label" id="autoToggleLabel">Auto Mode</span>
+              </div>
+            </div>
+            <div class="voice-controls-right">
+              <!-- Replay Question Button -->
+              <button class="btn-replay" id="replayBtn" onclick="replayQuestion()" title="Replay question">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Replay
+              </button>
+              <!-- Manual Mic Toggle -->
+              <button class="btn-mic" id="micBtn" onclick="toggleMic()" title="Toggle microphone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Fallback notice (hidden by default) -->
+          <div class="voice-fallback-notice" id="voiceFallbackNotice" style="display:none;">
+            ⚠️ <span id="fallbackMessage">Voice not supported in this browser. Use text input instead.</span>
+          </div>
+
+          <!-- Answer Area -->
           <div class="glass-card" style="flex:1;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; color:var(--primary-light); font-size:0.85rem; font-weight:600;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               YOUR ANSWER
             </div>
-            <textarea class="form-textarea" id="answerInput" placeholder="Type your answer here... Be detailed and specific." style="min-height:200px;" oninput="updateCharCount()"></textarea>
+            <!-- Live transcript indicator -->
+            <div class="transcript-live" id="transcriptLive">
+              <span class="transcript-live-dot"></span>
+              Live Transcript
+            </div>
+            <textarea class="form-textarea" id="answerInput" placeholder="Type your answer here... or use voice mode 🎤" style="min-height:200px;" oninput="updateCharCount()"></textarea>
             <div class="char-count" id="charCount">0 characters</div>
           </div>
 
@@ -96,6 +188,9 @@
               Submit Answer
             </button>
           </div>
+
+          <!-- Evaluation Result (populated by voice auto-flow) -->
+          <div id="evalResultContainer"></div>
 
           <!-- AI Model Answer Panel (hidden by default) -->
           <div id="aiResponseContainer"></div>

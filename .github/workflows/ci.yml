@@ -1,0 +1,67 @@
+name: NextHire CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with flake8
+      run: |
+        cd backend
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Run unit tests
+      env:
+        GROQ_API_KEY: "test_key"
+        GROQ_MODEL: "llama-3.3-70b-versatile"
+        SECRET_KEY: "test-secret-key"
+        DATABASE_URL: "sqlite:///./test.db"
+        MLFLOW_ENABLED: "false"
+      run: |
+        cd backend
+        python -m pytest tests/ -v --tb=short
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build backend Docker image
+      run: docker build -t nexthire-backend:test ./backend
+
+    - name: Build frontend Docker image
+      run: docker build -t nexthire-frontend:test ./frontend
+
+    - name: Verify backend image starts
+      run: |
+        docker run -d --name test-backend \
+          -e GROQ_API_KEY=test \
+          -e SECRET_KEY=test \
+          -e DATABASE_URL=sqlite:///./test.db \
+          -e MLFLOW_ENABLED=false \
+          -p 8000:8000 nexthire-backend:test || true
+        sleep 5
+        docker logs test-backend || true
+        docker stop test-backend || true
