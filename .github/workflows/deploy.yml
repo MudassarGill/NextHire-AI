@@ -31,6 +31,16 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Auto-install Docker if it doesn't exist yet
+            if ! command -v docker &> /dev/null; then
+              echo "Docker not found! Installing now..."
+              sudo apt-get update
+              sudo apt-get install -y docker.io docker-compose
+              sudo systemctl enable docker
+              sudo systemctl start docker
+              sudo usermod -aG docker ubuntu
+            fi
+
             # Navigate to project director
             cd ~/nexthire-ai
             
