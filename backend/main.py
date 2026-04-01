@@ -27,12 +27,11 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(interview.router)
 
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "app": "NextHire AI", "version": "1.0.0"}
+
 # Serve frontend static files
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-
-
-@app.get("/api/health")
-def health_check():
-    return {"status": "ok", "app": "NextHire AI", "version": "1.0.0"}
